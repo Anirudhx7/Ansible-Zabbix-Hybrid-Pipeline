@@ -106,7 +106,6 @@ From this project, I gained hands-on experience in:
 ```
 
 ## 🚀 Usage
-## 🚀 Usage
 
 ### 0. Host Pre-requisites
 Before running the playbook, ensure targets are reachable:
