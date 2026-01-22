@@ -1,5 +1,11 @@
 # Hybrid Infrastructure Observability: Zabbix Automation Pipeline 📊
 
+![Ansible](https://img.shields.io/badge/Ansible-Automation-red?style=flat&logo=ansible)
+![Zabbix](https://img.shields.io/badge/Zabbix-Monitoring-D60000?style=flat&logo=zabbix)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
+![YAML](https://img.shields.io/badge/YAML-Config-black?style=flat&logo=yaml)
+
 ## 🚀 Project Overview
 In a hybrid environment, manually installing monitoring agents is a bottleneck. It leads to "configuration drift," security blind spots, and hours of wasted time.
 
