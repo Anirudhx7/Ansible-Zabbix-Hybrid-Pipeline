@@ -1,0 +1,24 @@
+- name: Ensure Temp directory exists
+  ansible.windows.win_file:
+    path: "{{ zabbix_temp_dir }}"
+    state: directory
+
+- name: Download Zabbix Agent 2 MSI
+  ansible.windows.win_get_url:
+    url: "{{ zabbix_agent2_msi_url }}"
+    dest: "{{ zabbix_agent2_msi_dest }}"
+
+- name: Install Zabbix Agent 2
+  ansible.windows.win_package:
+    path: "{{ zabbix_agent2_msi_dest }}"
+    arguments: >
+      SERVER={{ zabbix_server_ip }}
+      SERVERACTIVE={{ zabbix_server_ip }}
+      HOSTNAME={{ ansible_hostname }}
+    state: present
+
+- name: Ensure Zabbix Agent 2 service running
+  ansible.windows.win_service:
+    name: Zabbix Agent 2
+    state: started
+    start_mode: auto

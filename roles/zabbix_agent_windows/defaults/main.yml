@@ -1,0 +1,2 @@
+zabbix_temp_dir: "C:\\Temp"
+zabbix_agent2_msi_dest: "C:\\Temp\\zabbix_agent2.msi"
