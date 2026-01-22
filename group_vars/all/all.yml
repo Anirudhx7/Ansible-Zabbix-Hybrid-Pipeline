@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------
+# GLOBAL VARIABLES
+# ---------------------------------------------------------------------
+
+# Primary Zabbix Server (Use DNS in Prod, IP for Lab)
+zabbix_server_ip: "10.10.0.50"
+zabbix_api_url: "http://monitor.corp.local/zabbix/api_jsonrpc.php"
+
+# Zabbix Registration Config
+# ID 2 = Linux Servers Group | ID 10001 = Linux by Zabbix Agent
+linux_group_id: "2"
+linux_template_id: "10001"
+
+# ID 4 = Windows Servers Group | ID 10081 = Windows by Zabbix Agent
+windows_group_id: "4"
+windows_template_id: "10081"
+
+# MSI Source for Windows Agent Deployment
+zabbix_agent2_msi_url: "https://cdn.zabbix.com/zabbix/binaries/stable/7.4/7.4.6/zabbix_agent2-7.4.6-windows-amd64-openssl.msi"
