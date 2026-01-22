@@ -70,6 +70,9 @@ From this project, I gained hands-on experience in:
 ```text
 .
 ├── inventory.example.ini    # Sanitized inventory template
+├── scripts/
+│   ├── bootstrap_linux.sh   # Linux Pre-reqs (Installs Python3)
+│   └── configure_winrm.ps1  # Windows Pre-reqs (Enables WinRM)
 ├── playbooks/
 │   └── zabbix/
 │       └── zabbix_agent_full.yml   # Main orchestrator
@@ -85,7 +88,23 @@ From this project, I gained hands-on experience in:
 ```
 
 ## 🚀 Usage
+### 0. Host Pre-requisites
+Before running the playbook, ensure targets are reachable:
 
+**For Windows Targets:**
+Run the included PowerShell bootstrapper to enable WinRM:
+
+```powershell
+# Run on target Windows Server (Admin PowerShell)
+.\scripts\configure_winrm.ps1
+```
+**For Linux Targets:**
+Most Linux distros work out of the box. If using a minimal image (missing Python), run:
+
+```bash
+# Run on target Linux Server
+sudo ./scripts/bootstrap_linux.sh
+```
 ### 1. Clone and Setup Inventory
 ```bash
 cp inventory.example.ini inventory.ini
