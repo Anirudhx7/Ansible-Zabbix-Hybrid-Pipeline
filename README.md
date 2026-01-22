@@ -18,6 +18,24 @@ It creates a unified pipeline that deploys Zabbix Agents to **Linux** and **Wind
 * **DevSecOps Standard:** Credentials secured using Ansible Vault (AES-256).
 * **Idempotency:** The pipeline can run repeatedly without breaking existing configurations.
 
+## 🏗️ Architecture
+```mermaid
+graph TD
+    A[Ansible Control Node] -->|WinRM / Port 5985| B(Windows Server Fleet)
+    A -->|SSH / Port 22| C(Linux Server Fleet)
+    
+    subgraph Provisioning Phase
+    B
+    C
+    end
+    
+    B -->|Registration API| D{Zabbix Server}
+    C -->|Registration API| D
+    
+    subgraph Observability
+    D
+    end
+```
 ## ⚡ The Automation Workflow
 I designed the playbook to handle the entire lifecycle of a monitoring agent:
 
