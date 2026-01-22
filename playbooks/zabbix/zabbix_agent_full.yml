@@ -1,0 +1,16 @@
+- name: Install and configure Zabbix agent on Linux
+  hosts: linux
+  become: yes
+  roles:
+    - zabbix_agent_linux
+
+- name: Install and configure Zabbix agent on Windows
+  hosts: windows
+  roles:
+    - zabbix_agent_windows
+
+- name: Register hosts in Zabbix Web UI
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - zabbix_register_host
