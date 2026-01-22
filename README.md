@@ -106,47 +106,90 @@ From this project, I gained hands-on experience in:
 ```
 
 ## 🚀 Usage
+## 🚀 Usage
+
 ### 0. Host Pre-requisites
 Before running the playbook, ensure targets are reachable:
 
-**For Windows Targets:**
+**For Windows Targets:**  
 Run the included PowerShell bootstrapper to enable WinRM:
-
 ```powershell
 # Run on target Windows Server (Admin PowerShell)
 .\scripts\configure_winrm.ps1
 ```
-**For Linux Targets:**
-Most Linux distros work out of the box. If using a minimal image (missing Python), run:
 
+**For Linux Targets:**  
+Most Linux distros work out of the box. If using a minimal image (missing Python), run:
 ```bash
 # Run on target Linux Server
 sudo ./scripts/bootstrap_linux.sh
 ```
-### 1. Clone and Setup Inventory
+
+---
+
+### 1. Inventory Setup
+Copy the template and define your hosts.
+
+✅ **Crucial:** Ensure Windows hosts are under `[windows]` so the WinRM connection variables apply.
 ```bash
 cp inventory.example.ini inventory.ini
-# Edit inventory.ini with your target IPs
 ```
-### 2. Configure Secrets
-Create a secure vault file for your Zabbix API credentials:
 
+Example `inventory.ini` structure:
+```ini
+[linux]
+10.0.0.5
+10.0.0.6
+
+[windows]
+10.0.0.20
+
+[zabbix_agent:children]
+linux
+windows
+```
+
+---
+
+### 2. Configure Secrets
+Create a secure vault file for your Zabbix API credentials and PSK.
 ```bash
 ansible-vault create group_vars/all/vault.yml
 ```
-**Add the following content inside the vault:**
 
+Add the following content inside the vault:
 ```yaml
-zabbix_api_url: "[http://monitor.example.com/zabbix/api_jsonrpc.php](http://monitor.example.com/zabbix/api_jsonrpc.php)"
+zabbix_api_url: "http://monitor.example.com/zabbix/api_jsonrpc.php"
 zabbix_api_user: "Admin"
 zabbix_api_password: "YOUR_SECURE_PASSWORD"
+zabbix_agent_psk: "YOUR_GENERATED_PSK_KEY"
 ```
-### 3. Run the Playbook
-Execute the deployment against your inventory:
 
+---
+
+### 3. Dry Run (Recommended)
+Check for connectivity and changes without applying them:
+```bash
+ansible-playbook playbooks/zabbix_deploy.yml -i inventory.ini --ask-vault-pass --check
+```
+
+---
+
+### 4. Deploy
+Execute the deployment against your inventory:
 ```bash
 ansible-playbook playbooks/zabbix_deploy.yml -i inventory.ini --ask-vault-pass
 ```
+
+---
+
+### 5. Verification
+Log in to your Zabbix Server Web UI:
+
+- Go to **Configuration → Hosts**
+- Verify the new hosts appear automatically
+- Check the **"ZBX"** icon is green ✅
+
 # 🏁 Final Notes
 This project bridges the gap between provisioning and observability. By automating the agent deployment and registration, I ensured that no server is ever deployed without monitoring coverage, maintaining 100% visibility across the infrastructure.
 
