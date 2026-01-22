@@ -1,0 +1,3 @@
+zabbix_agent_pkg: zabbix-agent
+zabbix_agent_conf: /etc/zabbix/zabbix_agentd.conf
+zabbix_metadata: "Linux"

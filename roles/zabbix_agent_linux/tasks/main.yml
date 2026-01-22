@@ -1,0 +1,39 @@
+- name: Ensure Zabbix agent installed (Linux)
+  apt:
+    name: "{{ zabbix_agent_pkg }}"
+    state: present
+    update_cache: yes
+
+- name: Configure Server
+  lineinfile:
+    path: "{{ zabbix_agent_conf }}"
+    regexp: '^Server='
+    line: "Server={{ zabbix_server_ip }}"
+  notify: restart zabbix-agent
+
+- name: Configure ServerActive
+  lineinfile:
+    path: "{{ zabbix_agent_conf }}"
+    regexp: '^ServerActive='
+    line: "ServerActive={{ zabbix_server_ip }}"
+  notify: restart zabbix-agent
+
+- name: Configure HostMetadataItem
+  lineinfile:
+    path: "{{ zabbix_agent_conf }}"
+    regexp: '^#?HostMetadataItem='
+    line: "HostMetadataItem=system.uname"
+  notify: restart zabbix-agent
+
+- name: Configure HostMetadata
+  lineinfile:
+    path: "{{ zabbix_agent_conf }}"
+    regexp: '^#?HostMetadata='
+    line: "HostMetadata={{ zabbix_metadata }}"
+  notify: restart zabbix-agent
+
+- name: Ensure service enabled and running
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: yes
