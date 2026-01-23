@@ -1,27 +1,27 @@
 # scripts/configure_winrm.ps1
-# PURPOSE: Bootstrapper to enable WinRM for Ansible management
-# USAGE: Run this via RDP or User Data on the target Windows Server ONCE.
+# PURPOSE: Enable WinRM for Ansible (Lab/Dev Environment)
+# WARNING: This enables Basic Auth and Unencrypted HTTP. Do not use in Production without TLS.
 
-Write-Host "Configuring WinRM for Ansible..." -ForegroundColor Cyan
+Write-Host "🚀 Configuring WinRM for Ansible..." -ForegroundColor Cyan
 
-# 1. Ensure the network connection is Private (WinRM firewall rules restrict Public networks)
-$networkProfile = Get-NetConnectionProfile
-if ($networkProfile.NetworkCategory -ne 'Private') {
-    Write-Host "Setting Network Profile to Private..."
-    Set-NetConnectionProfile -InterfaceIndex $networkProfile.InterfaceIndex -NetworkCategory Private
-}
-
-# 2. Enable PowerShell Remoting (Force ensures it runs without prompt)
+# 1. Enable WinRM and PS Remoting
+Write-Host "Enabling PS Remoting..."
+winrm quickconfig -force
 Enable-PSRemoting -Force
 
-# 3. Configure Auth: Allow Basic (Required for simple Ansible setups)
-Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
+# 2. Configure Firewall (Port 5985)
+# Note: 'winrm quickconfig' usually does this, but we force it to be sure.
+Write-Host "Adding Firewall Rule for TCP 5985..."
+netsh advfirewall firewall add rule name="WinRM HTTP" dir=in action=allow protocol=TCP localport=5985
 
-# 4. Configure Traffic: Allow Unencrypted (Required unless you generate valid Certs)
-# Note: In Prod, use HTTPS. For this Lab/Demo, HTTP is acceptable.
-Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
+# 3. Enable Authentication (Basic & Unencrypted)
+# Critical for Lab environments where we don't have valid SSL Certificates.
+Write-Host "Configuring Auth Settings..."
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value true
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value true
 
-# 5. Restart WinRM Service to apply changes
+# 4. Restart Service to apply changes
+Write-Host "Restarting WinRM Service..."
 Restart-Service WinRM
 
-Write-Host "WinRM Configured successfully. Host is ready for Ansible." -ForegroundColor Green
+Write-Host "✅ WinRM Configured! Host is ready for Ansible." -ForegroundColor Green
