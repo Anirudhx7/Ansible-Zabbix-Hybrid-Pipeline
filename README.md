@@ -195,4 +195,6 @@ This project bridges the gap between provisioning and observability. By automati
 ## 🛡️ Security Note
 This repository contains an inventory.example.ini and dummy vault variables. Never commit real internal IP addresses or unencrypted passwords to public version control.
 
+## 📬 Contact
+
 LinkedIn: <a href="https://www.linkedin.com/in/anirudh-mehandru/">linkedin.com/in/anirudh-mehandru </a>
