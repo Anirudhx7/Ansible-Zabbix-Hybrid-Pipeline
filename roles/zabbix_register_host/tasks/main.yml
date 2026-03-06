@@ -1,65 +1,113 @@
- ########################################################
-    # Register Linux hosts
-    ########################################################
-    - name: Register Linux hosts
-      uri:
-        url: "{{ zabbix_api_url }}"
-        method: POST
-        body_format: json
-        headers:
-          Content-Type: application/json
-          Authorization: "Bearer {{ zabbix_api_token }}"
-        body: |
-          {
-            "jsonrpc": "2.0",
-            "method": "host.create",
-            "params": {
-              "host": "{{ hostvars[item].ansible_hostname }}",
-              "interfaces": [{
-                "type": 1,
-                "main": 1,
-                "useip": 1,
-                "ip": "{{ hostvars[item].ansible_default_ipv4.address }}",
-                "dns": "",
-                "port": "10050"
-              }],
-              "groups": [{ "groupid": "{{ linux_group_id }}" }],
-              "templates": [{ "templateid": "{{ linux_template_id }}" }]
-            },
-            "id": 1
-          }
-      loop: "{{ groups['linux'] }}"
-      ignore_errors: yes
+########################################################
+# Register Linux hosts (Idempotent)
+########################################################
 
-    ########################################################
-    # Register Windows hosts
-    ########################################################
-    - name: Register Windows hosts
-      uri:
-        url: "{{ zabbix_api_url }}"
-        method: POST
-        body_format: json
-        headers:
-          Content-Type: application/json
-          Authorization: "Bearer {{ zabbix_api_token }}"
-        body: |
-          {
-            "jsonrpc": "2.0",
-            "method": "host.create",
-            "params": {
-              "host": "{{ hostvars[item].ansible_hostname }}",
-              "interfaces": [{
-                "type": 1,
-                "main": 1,
-                "useip": 1,
-                "ip": "{{ item }}",
-                "dns": "",
-                "port": "10050"
-              }],
-              "groups": [{ "groupid": "{{ windows_group_id }}" }],
-              "templates": [{ "templateid": "{{ windows_template_id }}" }]
-            },
-            "id": 1
-          }
-      loop: "{{ groups['windows'] }}"
-      ignore_errors: yes
+- name: Check if Linux host already exists in Zabbix
+  uri:
+    url: "{{ zabbix_api_url }}"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ zabbix_api_token }}"
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "method": "host.get",
+        "params": {
+          "filter": { "host": ["{{ hostvars[item].ansible_hostname }}"] },
+          "output": ["hostid", "host"]
+        },
+        "id": 1
+      }
+  loop: "{{ groups['linux'] }}"
+  register: linux_host_check
+
+- name: Register Linux hosts (skip if already exists)
+  uri:
+    url: "{{ zabbix_api_url }}"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ zabbix_api_token }}"
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "method": "host.create",
+        "params": {
+          "host": "{{ hostvars[item.item].ansible_hostname }}",
+          "interfaces": [{
+            "type": 1,
+            "main": 1,
+            "useip": 1,
+            "ip": "{{ hostvars[item.item].ansible_default_ipv4.address }}",
+            "dns": "",
+            "port": "10050"
+          }],
+          "groups": [{ "groupid": "{{ linux_group_id }}" }],
+          "templates": [{ "templateid": "{{ linux_template_id }}" }]
+        },
+        "id": 1
+      }
+  loop: "{{ linux_host_check.results }}"
+  when: item.json.result | length == 0
+  loop_control:
+    label: "{{ item.item }}"
+
+########################################################
+# Register Windows hosts (Idempotent)
+########################################################
+
+- name: Check if Windows host already exists in Zabbix
+  uri:
+    url: "{{ zabbix_api_url }}"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ zabbix_api_token }}"
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "method": "host.get",
+        "params": {
+          "filter": { "host": ["{{ hostvars[item].ansible_hostname }}"] },
+          "output": ["hostid", "host"]
+        },
+        "id": 1
+      }
+  loop: "{{ groups['windows'] }}"
+  register: windows_host_check
+
+- name: Register Windows hosts (skip if already exists)
+  uri:
+    url: "{{ zabbix_api_url }}"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ zabbix_api_token }}"
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "method": "host.create",
+        "params": {
+          "host": "{{ hostvars[item.item].ansible_hostname }}",
+          "interfaces": [{
+            "type": 1,
+            "main": 1,
+            "useip": 1,
+            "ip": "{{ item.item }}",
+            "dns": "",
+            "port": "10050"
+          }],
+          "groups": [{ "groupid": "{{ windows_group_id }}" }],
+          "templates": [{ "templateid": "{{ windows_template_id }}" }]
+        },
+        "id": 1
+      }
+  loop: "{{ windows_host_check.results }}"
+  when: item.json.result | length == 0
+  loop_control:
+    label: "{{ item.item }}"
