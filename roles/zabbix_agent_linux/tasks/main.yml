@@ -1,8 +1,17 @@
-- name: Ensure Zabbix agent installed (Linux)
+# --- Debian / Ubuntu ---
+- name: Ensure Zabbix agent installed (Debian/Ubuntu)
   apt:
     name: "{{ zabbix_agent_pkg }}"
     state: present
     update_cache: yes
+  when: ansible_os_family == "Debian"
+
+# --- RedHat / CentOS / Rocky / AlmaLinux ---
+- name: Ensure Zabbix agent installed (RedHat/CentOS/Rocky)
+  yum:
+    name: "{{ zabbix_agent_pkg }}"
+    state: present
+  when: ansible_os_family == "RedHat"
 
 - name: Configure Server
   lineinfile:
